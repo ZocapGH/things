@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0d0d12">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Things">
+<meta name="description" content="Kleine Spielereien aus Mathe und Physik.">
+<title>Things</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div id="home" class="view">
+  <header class="top">
+    <div>
+      <h1>Things</h1>
+      <p>Kleine Spielereien aus Mathe &amp; Physik</p>
+    </div>
+    <button id="install" class="btn primary hidden">Installieren</button>
+  </header>
+  <main id="grid" class="grid"></main>
+  <footer class="foot" id="foot"></footer>
+</div>
+
+<div id="thing" class="view hidden">
+  <div id="stage" class="stage"></div>
+  <div class="bar">
+    <button id="back" class="iconbtn" aria-label="Zurück">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <h2 id="title"></h2>
+    <button id="togglePanel" class="iconbtn" aria-label="Einstellungen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+    </button>
+  </div>
+  <aside id="panel" class="panel"></aside>
+</div>
+
+<script src="js/core.js"></script>
+<script src="js/things/pendulum.js"></script>
+<script src="js/things/opart.js"></script>
+<script src="js/things/fractal.js"></script>
+<script src="js/things/fourier.js"></script>
+<script src="js/things/gravity.js"></script>
+<script src="js/things/cloth.js"></script>
+<script src="js/things/harmonograph.js"></script>
+<script src="js/things/attractor.js"></script>
+<script src="js/things/kaleido.js"></script>
+<script src="js/things/fluid.js"></script>
+<script src="js/things/water.js"></script>
+<script src="js/things/ripple.js"></script>
+<script src="js/things/reaction.js"></script>
+<script src="js/things/galton.js"></script>
+<script src="js/things/boids.js"></script>
+<script src="js/things/sand.js"></script>
+<script src="js/things/sorting.js"></script>
+<script src="js/things/maze.js"></script>
+<script src="js/things/life.js"></script>
+<script src="js/things/langton.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
