@@ -26,7 +26,6 @@ Reines HTML/CSS/JavaScript mit Canvas, **keine externen Bibliotheken**, kein Bui
 | Lichtstrahlen (Raytracing: Brechung, Dispersion, Totalreflexion, Spiegel) | `js/things/optics.js` |
 | Elektrische Felder (Ladungen, Potential, Feldlinien, Probeteilchen) | `js/things/efield.js` |
 | Flussfeld-Kunst (Perlin-Rauschen, generative Bilder) | `js/things/flowfield.js` |
-| Billard (Stoßphysik, Zielhilfe, Taschen, Geräusche) | `js/things/billiard.js` |
 | Harmonograph (gedämpfte Pendel, Drehtisch) | `js/things/harmonograph.js` |
 | Seltsame Attraktoren (Lorenz, Rössler, Aizawa, Thomas, Halvorsen, Dadras; 3D drehbar) | `js/things/attractor.js` |
 | Schwarm / Boids (bis 3000, Zeiger als Raubvogel oder Futter) | `js/things/boids.js` |
