@@ -1,12 +1,13 @@
 /* Service Worker: macht Things offline-fähig. Netz zuerst (immer aktuell), Cache als Rückfall.
    Bei neuen Dateien: Liste ergänzen und CACHE-Version erhöhen. */
-const CACHE = 'things-v4';
+const CACHE = 'things-v5';
 const FILES = [
   './', 'index.html', 'manifest.webmanifest', 'css/app.css',
   'js/core.js', 'js/app.js',
   'js/things/pendulum.js', 'js/things/opart.js', 'js/things/fractal.js', 'js/things/fourier.js',
   'js/things/gravity.js', 'js/things/cloth.js', 'js/things/harmonograph.js', 'js/things/attractor.js',
-  'js/things/kaleido.js', 'js/things/fluid.js', 'js/things/water.js', 'js/things/maze.js', 'js/things/ripple.js', 'js/things/reaction.js', 'js/things/galton.js',
+  'js/things/kaleido.js', 'js/things/flowfield.js', 'js/things/chladni.js', 'js/things/optics.js',
+  'js/things/efield.js', 'js/things/billiard.js','js/things/fluid.js', 'js/things/water.js', 'js/things/maze.js', 'js/things/ripple.js', 'js/things/reaction.js', 'js/things/galton.js',
   'js/things/boids.js', 'js/things/sand.js', 'js/things/sorting.js', 'js/things/life.js', 'js/things/langton.js',
   'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
 ];
