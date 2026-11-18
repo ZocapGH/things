@@ -84,17 +84,78 @@
         }
       }
 
+      // ---- Mikrofon: lautester Ton wählt die Schwingungsform, Lautstärke bestimmt das Rütteln ----
+      // Alles wird nur auf dem Gerät ausgewertet, nichts aufgenommen oder verschickt.
+      let mic = null, micNote = '';
+      const FREQS = MODES.map(freqOf);
+      async function micOn(on) {
+        st.mic = on;
+        if (!on) { stopMic(); return; }
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          micNote = 'Mikrofon wird hier nicht unterstützt (nur über https)'; micBox.checked = false; st.mic = false; return;
+        }
+        try {
+          if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+          await ac.resume();
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+          if (!st.mic) { stream.getTracks().forEach((t) => t.stop()); return; }
+          const src = ac.createMediaStreamSource(stream), an = ac.createAnalyser();
+          an.fftSize = 4096; an.smoothingTimeConstant = 0.3;
+          src.connect(an);
+          mic = { stream, src, an, spec: new Float32Array(an.frequencyBinCount), wave: new Float32Array(an.fftSize), level: 0, hz: 0, cand: -1, candT: 0 };
+          micNote = '';
+          if (st.sound) { sound(false); soundBox.checked = false; } // eigener Ton würde sich selbst hören
+          if (st.auto) { st.auto = false; autoBox.checked = false; }
+        } catch (e) {
+          micNote = 'Kein Zugriff aufs Mikrofon – bitte im Browser erlauben';
+          micBox.checked = false; st.mic = false;
+        }
+      }
+      function stopMic() {
+        if (mic) { mic.stream.getTracks().forEach((t) => t.stop()); mic.src.disconnect(); }
+        mic = null;
+      }
+      function listen(dt) {
+        const m = mic, an = m.an;
+        an.getFloatTimeDomainData(m.wave);
+        let rms = 0;
+        for (let i = 0; i < m.wave.length; i++) rms += m.wave[i] * m.wave[i];
+        rms = Math.sqrt(rms / m.wave.length);
+        const lvl = Math.max(0, Math.min(1, (20 * Math.log10(rms + 1e-9) + 58) / 38));
+        m.level += (lvl - m.level) * Math.min(1, dt * 12);
+        // Tonhöhe: stärkste Spektrallinie zwischen 150 und 4300 Hz (mit Parabel-Verfeinerung)
+        an.getFloatFrequencyData(m.spec);
+        const binHz = ac.sampleRate / an.fftSize, lo = Math.floor(150 / binHz), hi = Math.min(m.spec.length - 2, Math.ceil(4300 / binHz));
+        let best = lo, sum = 0;
+        for (let i = lo; i <= hi; i++) { sum += m.spec[i]; if (m.spec[i] > m.spec[best]) best = i; }
+        const peak = m.spec[best], avg = sum / (hi - lo + 1);
+        if (peak > -70 && peak - avg > 22 && lvl > 0.05) {
+          const a = m.spec[best - 1], b = peak, c = m.spec[best + 1], off = 0.5 * (a - c) / (a - 2 * b + c || 1);
+          m.hz = (best + off) * binHz;
+          let mi = 0, md = Infinity;
+          for (let i = 0; i < FREQS.length; i++) { const d = Math.abs(Math.log2(FREQS[i] / m.hz)); if (d < md) { md = d; mi = i; } }
+          // kurz stabil halten, bevor umgeschaltet wird (gegen Flackern)
+          if (mi !== st.mode) {
+            if (mi === m.cand) m.candT += dt; else { m.cand = mi; m.candT = 0; }
+            if (m.candT > 0.12) { st.mode = mi; modeS.value = mi; computeField(); kick = 0.2; m.cand = -1; }
+          } else m.cand = -1;
+        } else m.hz = 0;
+      }
+
       const stop = Things.loop((dt) => {
         if (st.auto) {
           autoT += dt;
           if (autoT > 4) { autoT = 0; st.mode = (st.mode + 1) % MODES.length; modeS.value = st.mode; computeField(); }
         }
-        // Sand hüpft – je stärker die Platte an dieser Stelle schwingt, desto weiter
-        const k = 0.025 * st.shake, drift = 0.0025 * st.shake, extra = kick * 0.06;
+        if (mic) listen(dt);
+        // Sand hüpft – je stärker die Platte an dieser Stelle schwingt, desto weiter.
+        // Mit Mikrofon: Stille = Platte ruht, lauter = stärker.
+        const loud = mic ? Math.min(1.6, mic.level * 1.8) : 1;
+        const k = 0.025 * st.shake * loud, drift = 0.0025 * st.shake * loud, extra = kick * 0.06 * (mic ? mic.level : 1);
         kick = Math.max(0, kick - dt);
         for (let i = 0; i < count; i++) {
           const gx = (px[i] * G) | 0, gy = (py[i] * G) | 0, gi = (gy < G ? gy : G - 1) * G + (gx < G ? gx : G - 1);
-          const a = amp[gi] * k + 0.00015 + extra;
+          const a = amp[gi] * k + (mic ? 0 : 0.00015) + extra;
           let x = px[i] + (Math.random() - 0.5) * a + ddx[gi] * drift, y = py[i] + (Math.random() - 0.5) * a + ddy[gi] * drift;
           px[i] = x < 0 ? -x : x > 1 ? 2 - x : x;
           py[i] = y < 0 ? -y : y > 1 ? 2 - y : y;
@@ -111,8 +172,14 @@
         ctx.fillStyle = '#f0d9a0';
         const ps = Math.max(1, s / 500);
         for (let i = 0; i < count; i++) ctx.fillRect(ox + px[i] * s, oy + py[i] * s, ps, ps);
-        const md = MODES[st.mode];
-        hud.textContent = `${freqOf(md)} Hz   Schwingungsform (${md[0]}, ${md[1]})${md[2] > 0 ? '+' : '−'}`;
+        const md = MODES[st.mode], form = `Schwingungsform (${md[0]}, ${md[1]})${md[2] > 0 ? '+' : '−'}`;
+        if (mic) {
+          // Pegelanzeige unter der Platte
+          const bw = s * Math.min(1, mic.level), by = Math.min(S.h - 10, oy + s + 8);
+          ctx.fillStyle = '#2a2a36'; ctx.fillRect(ox, by, s, 5);
+          ctx.fillStyle = mic.level > 0.85 ? '#ff4d6d' : '#3ddc84'; ctx.fillRect(ox, by, bw, 5);
+          hud.textContent = (mic.hz ? `Gehört: ${Math.round(mic.hz)} Hz → ${freqOf(md)} Hz   ` : 'Mikrofon: pfeif, sing oder spiel einen Ton   ') + form;
+        } else hud.textContent = micNote || `${freqOf(md)} Hz   ${form}`;
       });
 
       Things.pointer(stage, {
@@ -125,20 +192,30 @@
 
       const modeS = U.slider(panel, 'Frequenz', { min: 0, max: MODES.length - 1, step: 1, value: st.mode,
         fmt: (v) => freqOf(MODES[v]) + ' Hz', onInput: (v) => { st.mode = v; computeField(); } });
-      U.toggle(panel, 'Ton', st.sound, (v) => sound(v));
+      const micBox = U.toggle(panel, 'Mikrofon (pfeifen, singen, Instrument)', false, (v) => { micNote = ''; micOn(v); });
+      const soundBox = U.toggle(panel, 'Ton', st.sound, (v) => {
+        if (v && mic) { micOn(false); micBox.checked = false; }
+        sound(v);
+      });
       U.slider(panel, 'Lautstärke', { min: 0, max: 1, value: st.vol, fmt: (v) => Math.round(v * 100) + ' %',
         onInput: (v) => { st.vol = v; if (gain) gain.gain.setTargetAtTime(0.08 * v, ac.currentTime, 0.05); } });
-      U.toggle(panel, 'Automatisch durchspielen', st.auto, (v) => { st.auto = v; autoT = 0; });
+      const autoBox = U.toggle(panel, 'Automatisch durchspielen', st.auto, (v) => {
+        st.auto = v; autoT = 0;
+        if (v && mic) { micOn(false); micBox.checked = false; }
+      });
       U.slider(panel, 'Schwingstärke', { min: 0.3, max: 3, value: st.shake, onInput: (v) => (st.shake = v) });
       U.slider(panel, 'Sandmenge', { min: 2000, max: 40000, step: 1000, value: st.n, fmt: (v) => v, onChange: (v) => { st.n = v; reset(); } });
       U.buttons(panel, [['Sand neu streuen', reset, true]]);
       U.hint(panel, 'Die Platte schwingt in einer Eigenform: Manche Linien bleiben dabei völlig ruhig (Knotenlinien). ' +
         'Dort bleibt der Sand liegen, überall sonst wird er weggeschüttelt. Höhere Töne ergeben feinere Muster. ' +
         'Tippe auf die Platte, um Sand nachzustreuen. Ernst Chladni hat das 1787 mit einem Geigenbogen entdeckt.');
+      U.hint(panel, 'Mit Mikrofon wählt der lauteste Ton, den du pfeifst, singst oder spielst, die Schwingungsform – ' +
+        'und je lauter, desto stärker hüpft der Sand. Pfeifen funktioniert am besten. Der Ton wird nur auf dem Gerät ' +
+        'ausgewertet, nichts wird aufgenommen oder verschickt.');
 
       computeField();
       reset();
-      return { destroy() { stop(); S.destroy(); if (ac) ac.close(); } };
+      return { destroy() { stop(); stopMic(); S.destroy(); if (ac) ac.close(); } };
     },
   });
 })();
