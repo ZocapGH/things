@@ -1,5 +1,5 @@
-﻿/* Service Worker: macht Things offline-fÃ¤hig. Netz zuerst (immer aktuell), Cache als RÃ¼ckfall.
-   Bei neuen Dateien: Liste ergÃ¤nzen und CACHE-Version erhÃ¶hen. */
+/* Service Worker: macht Things offline-fähig. Netz zuerst (immer aktuell), Cache als Rückfall.
+   Bei neuen Dateien: Liste ergänzen und CACHE-Version erhöhen. */
 const CACHE = 'things-v7';
 const FILES = [
   './', 'index.html', 'manifest.webmanifest', 'css/app.css',
