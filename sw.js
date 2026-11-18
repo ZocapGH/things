@@ -1,10 +1,10 @@
 /* Service Worker: macht Things offline-fähig. Netz zuerst (immer aktuell), Cache als Rückfall.
    Bei neuen Dateien: Liste ergänzen und CACHE-Version erhöhen. */
-const CACHE = 'things-v7';
+const CACHE = 'things-v8';
 const FILES = [
   './', 'index.html', 'manifest.webmanifest', 'css/app.css',
   'js/core.js', 'js/app.js',
-  'js/things/pendulum.js', 'js/things/opart.js', 'js/things/fractal.js', 'js/things/fourier.js',
+  'js/things/pendulum.js', 'js/things/pendulumwave.js', 'js/things/soundviz.js','js/things/opart.js', 'js/things/fractal.js', 'js/things/fourier.js',
   'js/things/gravity.js', 'js/things/cloth.js', 'js/things/harmonograph.js', 'js/things/attractor.js',
   'js/things/kaleido.js', 'js/things/flowfield.js', 'js/things/chladni.js', 'js/things/optics.js',
   'js/things/efield.js', 'js/things/fluid.js', 'js/things/water.js', 'js/things/maze.js', 'js/things/ripple.js', 'js/things/reaction.js', 'js/things/galton.js',

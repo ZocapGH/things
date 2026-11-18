@@ -22,7 +22,9 @@ Reines HTML/CSS/JavaScript mit Canvas, **keine externen Bibliotheken**, kein Bui
 | Tinte & Rauch (Gitter-Flüssigkeit, Stable Fluids, Wirbel, Auftrieb) | `js/things/fluid.js` |
 | Wasser (Partikel-Flüssigkeit, Dammbruch, Wasserhahn, Handy-Lagesensor) | `js/things/water.js` |
 | Labyrinth (6 Algorithmen animiert, Lösen per Breitensuche, selbst spielen) | `js/things/maze.js` |
-| Chladni-Figuren (Eigenschwingungen einer Platte, Sand, Ton) | `js/things/chladni.js` |
+| Chladni-Figuren (Eigenschwingungen einer Platte, Sand, Ton, Mikrofon) | `js/things/chladni.js` |
+| Pendelwelle (abgestimmte Pendellängen, 3D, Ton an Umkehrpunkten) | `js/things/pendulumwave.js` |
+| Klang sehen (Mikrofon: Spektrogramm, Schwingungskurve, Tonhöhe/Notenname) | `js/things/soundviz.js` |
 | Lichtstrahlen (Raytracing: Brechung, Dispersion, Totalreflexion, Spiegel) | `js/things/optics.js` |
 | Elektrische Felder (Ladungen, Potential, Feldlinien, Probeteilchen) | `js/things/efield.js` |
 | Flussfeld-Kunst (Perlin-Rauschen, generative Bilder) | `js/things/flowfield.js` |
